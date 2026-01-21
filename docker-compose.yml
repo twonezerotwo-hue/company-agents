@@ -1,0 +1,84 @@
+﻿services:
+  db: 
+    image: postgres:15-alpine
+    container_name:  company_db
+    environment: 
+      POSTGRES_USER: company_user
+      POSTGRES_PASSWORD:  secure_password_123
+      POSTGRES_DB: company_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test:  ["CMD-SHELL", "pg_isready -U company_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - company_network
+
+  redis:
+    image:  redis:7-alpine
+    container_name: company_redis
+    ports:
+      - "6379:6379"
+    volumes: 
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck: 
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: 
+      - company_network
+
+  agents:
+    build: 
+      context: ./agents
+      dockerfile: Dockerfile
+    container_name: crew_agents
+    environment:
+      OPENAI_API_KEY: sk-your-key
+      GROQ_API_KEY: your-key
+      DATABASE_URL: postgresql://company_user:secure_password_123@db:5432/company_db
+      REDIS_URL: redis://redis:6379/0
+      LOG_LEVEL: INFO
+    depends_on:
+      - db
+      - redis
+    volumes: 
+      - ./agents/src:/app/src
+      - ./logs:/app/logs
+    networks: 
+      - company_network
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: company_api
+    environment:
+      OPENAI_API_KEY:  sk-your-key
+      DATABASE_URL: postgresql://company_user:secure_password_123@db:5432/company_db
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8080:8080"
+    depends_on:
+      - agents
+      - db
+      - redis
+    networks:
+      - company_network
+    restart: unless-stopped
+
+networks:
+  company_network: 
+    driver: bridge
+
+volumes: 
+  postgres_data:
+  redis_data:
