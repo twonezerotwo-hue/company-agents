@@ -1,43 +1,70 @@
--- Database Schema for Company Agents
-
--- Table for Users
-CREATE TABLE users (
-    user_id SERIAL PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    email VARCHAR(100) NOT NULL UNIQUE,
+-- Users Table
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(255) UNIQUE NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Table for Agents
-CREATE TABLE agents (
-    agent_id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(100) NOT NULL UNIQUE,
-    phone_number VARCHAR(20),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
--- Table for Tasks
-CREATE TABLE tasks (
-    task_id SERIAL PRIMARY KEY,
-    title VARCHAR(100) NOT NULL,
+-- Agents Table
+CREATE TABLE IF NOT EXISTS agents (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    role VARCHAR(255) NOT NULL,
     description TEXT,
-    created_by INTEGER REFERENCES users(user_id),
-    assigned_to INTEGER REFERENCES agents(agent_id),
-    status VARCHAR(20) DEFAULT 'pending',
+    status VARCHAR(50) DEFAULT 'active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Table for Task Executions
-CREATE TABLE task_executions (
-    execution_id SERIAL PRIMARY KEY,
-    task_id INTEGER REFERENCES tasks(task_id),
-    executed_by INTEGER REFERENCES agents(agent_id),
-    executed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status VARCHAR(20) DEFAULT 'success',
-    notes TEXT
+-- Tasks Table
+CREATE TABLE IF NOT EXISTS tasks (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    status VARCHAR(50) DEFAULT 'pending',
+    priority VARCHAR(50) DEFAULT 'medium',
+    agent_id INTEGER,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (agent_id) REFERENCES agents(id)
 );
+
+-- Task Executions Table
+CREATE TABLE IF NOT EXISTS task_executions (
+    id SERIAL PRIMARY KEY,
+    task_id INTEGER NOT NULL,
+    agent_id INTEGER NOT NULL,
+    status VARCHAR(50) DEFAULT 'pending',
+    result TEXT,
+    error_message TEXT,
+    started_at TIMESTAMP,
+    completed_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (task_id) REFERENCES tasks(id),
+    FOREIGN KEY (agent_id) REFERENCES agents(id)
+);
+
+-- Agent Logs Table
+CREATE TABLE IF NOT EXISTS agent_logs (
+    id SERIAL PRIMARY KEY,
+    agent_id INTEGER NOT NULL,
+    execution_id INTEGER,
+    log_level VARCHAR(50),
+    message TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (agent_id) REFERENCES agents(id),
+    FOREIGN KEY (execution_id) REFERENCES task_executions(id)
+);
+
+-- Create Indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_tasks_user_id ON tasks(user_id);
+CREATE INDEX IF NOT EXISTS idx_tasks_agent_id ON tasks(agent_id);
+CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
+CREATE INDEX IF NOT EXISTS idx_task_executions_task_id ON task_executions(task_id);
+CREATE INDEX IF NOT EXISTS idx_task_executions_agent_id ON task_executions(agent_id);
+CREATE INDEX IF NOT EXISTS idx_agent_logs_agent_id ON agent_logs(agent_id);
