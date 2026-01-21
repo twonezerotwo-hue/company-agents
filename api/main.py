@@ -1,16 +1,15 @@
-from pydantic import BaseModel
+from sqlalchemy.ext.declarative import declarative_base
 
+BaseModel = declarative_base()
 
 class Agent(BaseModel):
-    # Define Agent fields here
-    pass
-
+    __tablename__ = 'agents'
+    # Define agent fields here
 
 class User(BaseModel):
-    # Define User fields here
-    pass
-
+    __tablename__ = 'users'
+    # Define user fields here
 
 class Task(BaseModel):
-    # Define Task fields here
-    pass
+    __tablename__ = 'tasks'
+    # Define task fields here
