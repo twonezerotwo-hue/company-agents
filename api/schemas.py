@@ -1,1 +1,80 @@
-from pydantic import BaseModel\nfrom typing import Optional, List\nfrom datetime import datetime\n\n# User Schemas\nclass UserBase(BaseModel):\n    username: str\n    email: str\n\nclass UserCreate(UserBase):\n    password: str\n\nclass UserResponse(UserBase):\n    id: int\n    created_at: datetime\n    \n    class Config:\n        from_attributes = True\n\n# Agent Schemas\nclass AgentBase(BaseModel):\n    name: str\n    role: str\n    description: Optional[str] = None\n    status: str = "active"\n\nclass AgentCreate(AgentBase):\n    pass\n\nclass AgentResponse(AgentBase):\n    id: int\n    created_at: datetime\n    updated_at: datetime\n    \n    class Config:\n        from_attributes = True\n\n# Task Schemas\nclass TaskBase(BaseModel):\n    title: str\n    description: Optional[str] = None\n    priority: str = "medium"\n    agent_id: Optional[int] = None\n\nclass TaskCreate(TaskBase):\n    pass\n\nclass TaskUpdate(BaseModel):\n    title: Optional[str] = None\n    description: Optional[str] = None\n    status: Optional[str] = None\n    priority: Optional[str] = None\n    agent_id: Optional[int] = None\n\nclass TaskResponse(TaskBase):\n    id: int\n    user_id: int\n    status: str\n    created_at: datetime\n    updated_at: datetime\n    \n    class Config:\n        from_attributes = True\n\n# Task Execution Schemas\nclass TaskExecutionBase(BaseModel):\n    task_id: int\n    agent_id: int\n\nclass TaskExecutionResponse(TaskExecutionBase):\n    id: int\n    status: str\n    result: Optional[str] = None\n    error_message: Optional[str] = None\n    started_at: Optional[datetime] = None\n    completed_at: Optional[datetime] = None\n    created_at: datetime\n    \n    class Config:\n        from_attributes = True\n
+from pydantic import BaseModel
+from typing import Optional
+from datetime import datetime
+
+class UserCreate(BaseModel):
+    username: str
+    email: str
+    password: str
+
+class UserResponse(BaseModel):
+    id: int
+    username: str
+    email: str
+    class Config:
+        from_attributes = True
+
+class AgentCreate(BaseModel):
+    name: str
+    role: str
+    description: str
+    status: str = "active"
+
+class AgentResponse(BaseModel):
+    id: int
+    name: str
+    role: str
+    description: str
+    status: str
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+    class Config:
+        from_attributes = True
+
+class TaskCreate(BaseModel):
+    title: str
+    description: str
+    priority: str = "medium"
+    agent_id: Optional[int] = None
+
+class TaskUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    priority: Optional[str] = None
+    status: Optional[str] = None
+    agent_id: Optional[int] = None
+
+class TaskResponse(BaseModel):
+    id: int
+    user_id: int
+    title: str
+    description: str
+    priority: str
+    status: str
+    agent_id: Optional[int] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+    class Config:
+        from_attributes = True
+
+class TaskExecutionResponse(BaseModel):
+    id: int
+    task_id: int
+    agent_id: int
+    status: str
+    result: Optional[str] = None
+    error_message: Optional[str] = None
+    started_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
+    class Config:
+        from_attributes = True
+
+class AgentLogResponse(BaseModel):
+    id: int
+    agent_id: int
+    execution_id: Optional[int] = None
+    log_level: str
+    message: str
+    created_at: Optional[datetime] = None
+    class Config:
+        from_attributes = True
