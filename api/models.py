@@ -1,1 +1,44 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Index\nfrom sqlalchemy.ext.declarative import declarative_base\nfrom sqlalchemy.orm import relationship\nfrom datetime import datetime\n\nBase = declarative_base()\n\nclass User(Base):\n    __tablename__ = "users"\n    \n    id = Column(Integer, primary_key=True)\n    username = Column(String(255), unique=True, nullable=False)\n    email = Column(String(255), unique=True, nullable=False)\n    password_hash = Column(String(255), nullable=False)\n    created_at = Column(DateTime, default=datetime.utcnow)\n    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)\n    \n    tasks = relationship("Task", back_populates="user")\n\nclass Agent(Base):\n    __tablename__ = "agents"\n    \n    id = Column(Integer, primary_key=True)\n    name = Column(String(255), nullable=False)\n    role = Column(String(255), nullable=False)\n    description = Column(Text)\n    status = Column(String(50), default="active")\n    created_at = Column(DateTime, default=datetime.utcnow)\n    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)\n    \n    tasks = relationship("Task", back_populates="agent")\n    executions = relationship("TaskExecution", back_populates="agent")\n    logs = relationship("AgentLog", back_populates="agent")\n\nclass Task(Base):\n    __tablename__ = "tasks"\n    \n    id = Column(Integer, primary_key=True)\n    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)\n    title = Column(String(255), nullable=False)\n    description = Column(Text)\n    status = Column(String(50), default="pending")\n    priority = Column(String(50), default="medium")\n    agent_id = Column(Integer, ForeignKey("agents.id"))\n    created_at = Column(DateTime, default=datetime.utcnow)\n    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)\n    \n    user = relationship("User", back_populates="tasks")\n    agent = relationship("Agent", back_populates="tasks")\n    executions = relationship("TaskExecution", back_populates="task")\n    \n    __table_args__ = (\n        Index('idx_tasks_user_id', 'user_id'),\n        Index('idx_tasks_agent_id', 'agent_id'),\n        Index('idx_tasks_status', 'status'),\n    )\n\nclass TaskExecution(Base):\n    __tablename__ = "task_executions"\n    \n    id = Column(Integer, primary_key=True)\n    task_id = Column(Integer, ForeignKey("tasks.id"), nullable=False)\n    agent_id = Column(Integer, ForeignKey("agents.id"), nullable=False)\n    status = Column(String(50), default="pending")\n    result = Column(Text)\n    error_message = Column(Text)\n    started_at = Column(DateTime)\n    completed_at = Column(DateTime)\n    created_at = Column(DateTime, default=datetime.utcnow)\n    \n    task = relationship("Task", back_populates="executions")\n    agent = relationship("Agent", back_populates="executions")\n    logs = relationship("AgentLog", back_populates="execution")\n    \n    __table_args__ = (\n        Index('idx_task_executions_task_id', 'task_id'),\n        Index('idx_task_executions_agent_id', 'agent_id'),\n    )\n\nclass AgentLog(Base):\n    __tablename__ = "agent_logs"\n    \n    id = Column(Integer, primary_key=True)\n    agent_id = Column(Integer, ForeignKey("agents.id"), nullable=False)\n    execution_id = Column(Integer, ForeignKey("task_executions.id"))\n    log_level = Column(String(50))\n    message = Column(Text)\n    created_at = Column(DateTime, default=datetime.utcnow)\n    \n    agent = relationship("Agent", back_populates="logs")\n    execution = relationship("TaskExecution", back_populates="logs")\n    \n    __table_args__ = (\n        Index('idx_agent_logs_agent_id', 'agent_id'),\n    )\n
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, JSON
+from sqlalchemy.orm import relationship
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
+
+class User(Base):
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True)
+    username = Column(String, unique=True)
+    email = Column(String, unique=True)
+    agents = relationship('Agent', back_populates='user')
+
+class Agent(Base):
+    __tablename__ = 'agents'
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    user = relationship('User', back_populates='agents')
+    tasks = relationship('Task', back_populates='agent')
+
+class Task(Base):
+    __tablename__ = 'tasks'
+    id = Column(Integer, primary_key=True)
+    title = Column(String)
+    agent_id = Column(Integer, ForeignKey('agents.id'))
+    agent = relationship('Agent', back_populates='tasks')
+    executions = relationship('TaskExecution', back_populates='task')
+
+class TaskExecution(Base):
+    __tablename__ = 'task_executions'
+    id = Column(Integer, primary_key=True)
+    task_id = Column(Integer, ForeignKey('tasks.id'))
+    executed_at = Column(DateTime)
+    result = Column(JSON)
+    task = relationship('Task', back_populates='executions')
+
+class AgentLog(Base):
+    __tablename__ = 'agent_logs'
+    id = Column(Integer, primary_key=True)
+    agent_id = Column(Integer, ForeignKey('agents.id'))
+    log_message = Column(String)
+    log_time = Column(DateTime)
+    agent = relationship('Agent')
