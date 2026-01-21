@@ -1,49 +1,57 @@
 import uvicorn
-from fastapi import FastAPI
-from pydantic import BaseModel
+from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy.orm import Session
 from typing import List
+
+from database import engine, SessionLocal
+from models import Base, Holding, Company, Department, Agent, User, Task
+from schemas import (HoldingCreate, HoldingResponse, HoldingWithCompanies, CompanyCreate, CompanyResponse, CompanyWithDepartments, DepartmentCreate, DepartmentResponse, DepartmentWithAgents, AgentCreate, AgentResponse, AgentWithTasks, TaskCreate, TaskResponse, TaskUpdate, UserCreate, UserResponse)
 
 app = FastAPI()
 
-class Agent(BaseModel):
-    id: int
-    name: str
-    task_ids: List[int]
+# Dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
-class User(BaseModel):
-    id: int
-    username: str
-    agent_ids: List[int]
+# Create Holdings
+@app.post("/holdings/", response_model=HoldingResponse)
+def create_holding(holding: HoldingCreate, db: Session = Depends(get_db)):
+    db_holding = Holding(**holding.dict())
+    db.add(db_holding)
+    db.commit()
+    db.refresh(db_holding)
+    return db_holding
 
-class Task(BaseModel):
-    id: int
-    title: str
-    description: str
+# Read Holdings
+@app.get("/holdings/", response_model=List[HoldingWithCompanies])
+def read_holdings(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    holdings = db.query(Holding).offset(skip).limit(limit).all()
+    return holdings
 
-# Sample FastAPI endpoints
-@app.get("/agents/", response_model=List[Agent])
-async def get_agents():
-    return []  # Should return a list of agents
+# Update Holdings
+@app.put("/holdings/{holding_id}", response_model=HoldingResponse)
+def update_holding(holding_id: int, holding: HoldingCreate, db: Session = Depends(get_db)):
+    db_holding = db.query(Holding).filter(Holding.id == holding_id).first()
+    if not db_holding:
+        raise HTTPException(status_code=404, detail="Holding not found")
+    for key, value in holding.dict().items():
+        setattr(db_holding, key, value)
+    db.commit()
+    return db_holding
 
-@app.post("/agents/", response_model=Agent)
-async def create_agent(agent: Agent):
-    return agent  # Should create an agent
+# Delete Holdings
+@app.delete("/holdings/{holding_id}")
+def delete_holding(holding_id: int, db: Session = Depends(get_db)):
+    db_holding = db.query(Holding).filter(Holding.id == holding_id).first()
+    if not db_holding:
+        raise HTTPException(status_code=404, detail="Holding not found")
+    db.delete(db_holding)
+    db.commit()
+    return {"detail": "Holding deleted"}
 
-@app.get("/users/", response_model=List[User])
-async def get_users():
-    return []  # Should return a list of users
-
-@app.post("/users/", response_model=User)
-async def create_user(user: User):
-    return user  # Should create a user
-
-@app.get("/tasks/", response_model=List[Task])
-async def get_tasks():
-    return []  # Should return a list of tasks
-
-@app.post("/tasks/", response_model=Task)
-async def create_task(task: Task):
-    return task  # Should create a task
-
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+# Add CRUD for Companies, Departments, Agents, Tasks, and Users ... 
+# Similar structure as Holdings but with their respective schemas and models
