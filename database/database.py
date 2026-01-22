@@ -85,50 +85,63 @@ def get_db() -> Generator:
 
 # ============ DATABASE INITIALIZATION ============
 
-def init_db() -> None:
+def init_db(verbose: bool = False) -> None:
     """
     Initialize the database by creating all tables.
     
     Creates all tables defined in the SQLAlchemy models.
     Safe to call multiple times - will only create tables that don't exist.
     
+    Args:
+        verbose: If True, print confirmation message
+    
     Usage:
         from database.database import init_db
         init_db()
     """
     Base.metadata.create_all(bind=engine)
-    print(f"Database initialized successfully at: {DATABASE_URL}")
+    if verbose:
+        print(f"Database initialized successfully at: {DATABASE_URL}")
 
 
-def drop_all_tables() -> None:
+def drop_all_tables(verbose: bool = False) -> None:
     """
     Drop all tables from the database.
     
     WARNING: This will delete all data! Use only for testing or development.
+    
+    Args:
+        verbose: If True, print confirmation message
     
     Usage:
         from database.database import drop_all_tables
         drop_all_tables()
     """
     Base.metadata.drop_all(bind=engine)
-    print("All tables dropped successfully")
+    if verbose:
+        print("All tables dropped successfully")
 
 
-def reset_db() -> None:
+def reset_db(verbose: bool = False) -> None:
     """
     Reset the database by dropping and recreating all tables.
     
     WARNING: This will delete all data! Use only for development or testing.
     Equivalent to calling drop_all_tables() followed by init_db().
     
+    Args:
+        verbose: If True, print progress messages
+    
     Usage:
         from database.database import reset_db
         reset_db()
     """
-    print("Resetting database...")
-    drop_all_tables()
-    init_db()
-    print("Database reset complete")
+    if verbose:
+        print("Resetting database...")
+    drop_all_tables(verbose=verbose)
+    init_db(verbose=verbose)
+    if verbose:
+        print("Database reset complete")
 
 
 # ============ HELPER FUNCTIONS ============
@@ -165,7 +178,5 @@ def is_postgresql() -> bool:
 
 # ============ MODULE INITIALIZATION ============
 
-# Print database configuration on import (optional, can be removed for production)
-if __name__ != "__main__":
-    db_type = "SQLite" if is_sqlite() else "PostgreSQL" if is_postgresql() else "Other"
-    print(f"Database configured: {db_type}")
+# Database configuration is complete
+# To see database type, use is_sqlite() or is_postgresql() functions
