@@ -3,14 +3,14 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 
-from database import engine, SessionLocal, Base
+from database import engine, SessionLocal, Base, init_db
 from models import Holding, Company, Department, Agent, User, Task
 from schemas import (HoldingCreate, HoldingResponse, HoldingWithCompanies, CompanyCreate, CompanyResponse, CompanyWithDepartments, DepartmentCreate, DepartmentResponse, DepartmentWithAgents, AgentCreate, AgentResponse, AgentWithTasks, TaskCreate, TaskResponse, TaskUpdate, UserCreate, UserResponse)
 
 app = FastAPI()
 
 # Create all tables on startup
-Base.metadata.create_all(bind=engine)
+init_db()
 
 # Dependency
 def get_db():
