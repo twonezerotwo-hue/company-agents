@@ -1,10 +1,26 @@
-﻿from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
+"""
+API Database Configuration - Import from database package
 
-DATABASE_URL = "sqlite:///./company_agents.db"
+This file now imports all database utilities from the database package
+for backward compatibility.
+"""
 
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+from database import (
+    engine,
+    SessionLocal,
+    Base,
+    get_db,
+    init_db,
+    drop_all_tables,
+    reset_db,
+)
 
-Base = declarative_base()
+__all__ = [
+    "engine",
+    "SessionLocal",
+    "Base",
+    "get_db",
+    "init_db",
+    "drop_all_tables",
+    "reset_db",
+]
