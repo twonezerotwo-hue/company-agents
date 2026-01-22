@@ -1,0 +1,1505 @@
+{
+  "openapi": "3.1.0",
+  "info":  {
+    "title": "Company Agents API",
+    "version": "1.0.0",
+    "description": "Fixed FastAPI organizational hierarchy system with proper enums and validation"
+  },
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "summary": "User Login",
+        "operationId":  "login_auth_login_post",
+        "requestBody": {
+          "required": true,
+          "content":  {
+            "application/json":  {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Login",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid Credentials"
+          },
+          "422": {
+            "description": "Validation Error"
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "summary": "User Logout",
+        "operationId": "logout_auth_logout_post",
+        "responses": {
+          "200": {
+            "description": "Successful Logout"
+          }
+        }
+      }
+    },
+    "/holdings/": {
+      "post": {
+        "summary": "Create Holding",
+        "operationId": "create_holding_holdings__post",
+        "requestBody":  {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HoldingCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HoldingResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error"
+          }
+        }
+      },
+      "get": {
+        "summary": "Read Holdings",
+        "operationId":  "read_holdings_holdings__get",
+        "parameters": [
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema":  {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema":  {
+              "type": "integer",
+              "default": 100,
+              "minimum": 1,
+              "maximum": 1000
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/HoldingWithCompanies"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/holdings/{holding_id}": {
+      "put": {
+        "summary": "Update Holding",
+        "operationId": "update_holding_holdings__holding_id__put",
+        "parameters": [
+          {
+            "name": "holding_id",
+            "in":  "path",
+            "required":  true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required":  true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HoldingCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200":  {
+            "description": "Successful Response",
+            "content":  {
+              "application/json":  {
+                "schema": {
+                  "$ref": "#/components/schemas/HoldingResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "422": {
+            "description":  "Validation Error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete Holding",
+        "operationId": "delete_holding_holdings__holding_id__delete",
+        "parameters": [
+          {
+            "name":  "holding_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully Deleted"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "409": {
+            "description": "Conflict - Has dependent records"
+          }
+        }
+      }
+    },
+    "/companies/": {
+      "post":  {
+        "summary": "Create Company",
+        "operationId": "create_company_companies__post",
+        "requestBody":  {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompanyCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description":  "Successful Response",
+            "content": {
+              "application/json": {
+                "schema":  {
+                  "$ref": "#/components/schemas/CompanyResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description":  "Validation Error"
+          }
+        }
+      },
+      "get": {
+        "summary": "Read Companies",
+        "operationId": "read_companies_companies__get",
+        "parameters": [
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type":  "integer",
+              "default":  0,
+              "minimum":  0
+            }
+          },
+          {
+            "name":  "limit",
+            "in":  "query",
+            "required":  false,
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "minimum": 1,
+              "maximum": 1000
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CompanyWithDepartments"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/companies/{company_id}": {
+      "put": {
+        "summary": "Update Company",
+        "operationId": "update_company_companies__company_id__put",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "path",
+            "required": true,
+            "schema":  {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref":  "#/components/schemas/CompanyCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanyResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete Company",
+        "operationId": "delete_company_companies__company_id__delete",
+        "parameters": [
+          {
+            "name":  "company_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully Deleted"
+          },
+          "404":  {
+            "description": "Not Found"
+          },
+          "409": {
+            "description":  "Conflict - Has dependent records"
+          }
+        }
+      }
+    },
+    "/departments/": {
+      "post":  {
+        "summary": "Create Department",
+        "operationId": "create_department_departments__post",
+        "requestBody":  {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DepartmentCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref":  "#/components/schemas/DepartmentResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error"
+          }
+        }
+      },
+      "get": {
+        "summary": "Read Departments",
+        "operationId": "read_departments_departments__get",
+        "parameters": [
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type":  "integer",
+              "default":  100,
+              "minimum":  1,
+              "maximum":  1000
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DepartmentWithAgents"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/departments/{department_id}": {
+      "put": {
+        "summary": "Update Department",
+        "operationId": "update_department_departments__department_id__put",
+        "parameters": [
+          {
+            "name": "department_id",
+            "in": "path",
+            "required": true,
+            "schema":  {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref":  "#/components/schemas/DepartmentCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description":  "Successful Response",
+            "content": {
+              "application/json": {
+                "schema":  {
+                  "$ref": "#/components/schemas/DepartmentResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete Department",
+        "operationId": "delete_department_departments__department_id__delete",
+        "parameters": [
+          {
+            "name": "department_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully Deleted"
+          },
+          "404": {
+            "description":  "Not Found"
+          },
+          "409": {
+            "description": "Conflict - Has dependent records"
+          }
+        }
+      }
+    },
+    "/agents/": {
+      "post":  {
+        "summary": "Create Agent",
+        "operationId": "create_agent_agents__post",
+        "requestBody":  {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description":  "Successful Response",
+            "content": {
+              "application/json": {
+                "schema":  {
+                  "$ref": "#/components/schemas/AgentResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description":  "Validation Error"
+          }
+        }
+      },
+      "get": {
+        "summary": "Read Agents",
+        "operationId": "read_agents_agents__get",
+        "parameters": [
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema":  {
+              "type": "integer",
+              "default": 100,
+              "minimum": 1,
+              "maximum": 1000
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AgentWithTasks"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agents/{agent_id}": {
+      "put": {
+        "summary":  "Update Agent",
+        "operationId": "update_agent_agents__agent_id__put",
+        "parameters": [
+          {
+            "name": "agent_id",
+            "in":  "path",
+            "required":  true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200":  {
+            "description": "Successful Response",
+            "content":  {
+              "application/json":  {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentResponse"
+                }
+              }
+            }
+          },
+          "404":  {
+            "description": "Not Found"
+          },
+          "422": {
+            "description":  "Validation Error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete Agent",
+        "operationId": "delete_agent_agents__agent_id__delete",
+        "parameters": [
+          {
+            "name": "agent_id",
+            "in": "path",
+            "required": true,
+            "schema":  {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully Deleted"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "409": {
+            "description": "Conflict - Has dependent records"
+          }
+        }
+      }
+    },
+    "/tasks/": {
+      "post": {
+        "summary": "Create Task",
+        "operationId":  "create_task_tasks__post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref":  "#/components/schemas/TaskCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200":  {
+            "description": "Successful Response",
+            "content":  {
+              "application/json":  {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error"
+          }
+        }
+      },
+      "get":  {
+        "summary": "Read Tasks",
+        "operationId": "read_tasks_tasks__get",
+        "parameters": [
+          {
+            "name":  "skip",
+            "in":  "query",
+            "required":  false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "minimum": 1,
+              "maximum": 1000
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tasks/{task_id}": {
+      "put": {
+        "summary":  "Update Task",
+        "operationId": "update_task_tasks__task_id__put",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in":  "path",
+            "required":  true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200":  {
+            "description": "Successful Response",
+            "content":  {
+              "application/json":  {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error"
+          }
+        }
+      },
+      "delete": {
+        "summary":  "Delete Task",
+        "operationId": "delete_task_tasks__task_id__delete",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in":  "path",
+            "required":  true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully Deleted"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/users/": {
+      "post":  {
+        "summary": "Create User",
+        "operationId": "create_user_users__post",
+        "requestBody":  {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "422":  {
+            "description": "Validation Error"
+          }
+        }
+      },
+      "get": {
+        "summary": "Read Users",
+        "operationId": "read_users_users__get",
+        "parameters":  [
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema":  {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "minimum": 1,
+              "maximum": 1000
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description":  "Successful Response",
+            "content": {
+              "application/json": {
+                "schema":  {
+                  "type": "array",
+                  "items":  {
+                    "$ref": "#/components/schemas/UserResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{user_id}": {
+      "put": {
+        "summary": "Update User",
+        "operationId": "update_user_users__user_id__put",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema":  {
+                "$ref": "#/components/schemas/UserCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200":  {
+            "description": "Successful Response",
+            "content":  {
+              "application/json":  {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error"
+          }
+        }
+      },
+      "delete": {
+        "summary":  "Delete User",
+        "operationId": "delete_user_users__user_id__delete",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in":  "path",
+            "required":  true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully Deleted"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    }
+  },
+  "components":  {
+    "schemas": {
+      "LoginRequest": {
+        "type":  "object",
+        "properties":  {
+          "username": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 50
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8
+          }
+        },
+        "required": ["username", "password"],
+        "title": "LoginRequest"
+      },
+      "TokenResponse": {
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string"
+          },
+          "token_type": {
+            "type":  "string",
+            "enum": ["bearer"]
+          }
+        },
+        "required":  ["access_token", "token_type"],
+        "title": "TokenResponse"
+      },
+      "HoldingCreate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength":  1,
+            "maxLength": 100,
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 500,
+            "nullable": true,
+            "title":  "Description"
+          }
+        },
+        "required": ["name"],
+        "title": "HoldingCreate"
+      },
+      "HoldingResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "title":  "Description"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "required": ["id", "name", "created_at", "updated_at"],
+        "title": "HoldingResponse"
+      },
+      "HoldingWithCompanies": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name":  {
+            "type": "string"
+          },
+          "description":  {
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "companies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CompanyResponse"
+            },
+            "default": []
+          }
+        },
+        "required": ["id", "name"],
+        "title": "HoldingWithCompanies"
+      },
+      "CompanyCreate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "title": "Name"
+          },
+          "description":  {
+            "type": "string",
+            "maxLength": 500,
+            "nullable": true,
+            "title": "Description"
+          },
+          "holding_id": {
+            "type": "integer",
+            "minimum": 1,
+            "title": "Holding Id"
+          }
+        },
+        "required": ["name", "holding_id"],
+        "title": "CompanyCreate"
+      },
+      "CompanyResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name":  {
+            "type": "string"
+          },
+          "description":  {
+            "type": "string",
+            "nullable": true
+          },
+          "holding_id": {
+            "type": "integer"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["id", "name", "holding_id"],
+        "title": "CompanyResponse"
+      },
+      "CompanyWithDepartments": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type":  "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "holding_id": {
+            "type": "integer"
+          },
+          "created_at":  {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "departments":  {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DepartmentResponse"
+            },
+            "default": []
+          }
+        },
+        "required": ["id", "name", "holding_id"],
+        "title": "CompanyWithDepartments"
+      },
+      "DepartmentCreate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type":  "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 500,
+            "nullable": true,
+            "title": "Description"
+          },
+          "company_id": {
+            "type": "integer",
+            "minimum": 1,
+            "title": "Company Id"
+          }
+        },
+        "required":  ["name", "company_id"],
+        "title": "DepartmentCreate"
+      },
+      "DepartmentResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type":  "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "company_id": {
+            "type": "integer"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at":  {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["id", "name", "company_id"],
+        "title": "DepartmentResponse"
+      },
+      "DepartmentWithAgents": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "company_id":  {
+            "type": "integer"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at":  {
+            "type": "string",
+            "format": "date-time"
+          },
+          "agents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AgentResponse"
+            },
+            "default": []
+          }
+        },
+        "required": ["id", "name", "company_id"],
+        "title": "DepartmentWithAgents"
+      },
+      "AgentCreate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "title": "Name"
+          },
+          "role": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50,
+            "title": "Role"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 500,
+            "nullable": true,
+            "title": "Description"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "inactive", "suspended"],
+            "default": "active",
+            "title": "Status"
+          },
+          "user_id": {
+            "type": "integer",
+            "minimum": 1,
+            "nullable": true,
+            "title":  "User Id"
+          },
+          "department_id": {
+            "type": "integer",
+            "minimum": 1,
+            "title": "Department Id"
+          }
+        },
+        "required":  ["name", "role", "department_id"],
+        "title":  "AgentCreate"
+      },
+      "AgentResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "inactive", "suspended"]
+          },
+          "user_id": {
+            "type":  "integer",
+            "nullable": true
+          },
+          "department_id": {
+            "type": "integer"
+          },
+          "created_at": {
+            "type":  "string",
+            "format":  "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["id", "name", "role", "status", "department_id"],
+        "title":  "AgentResponse"
+      },
+      "AgentWithTasks": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type":  "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "inactive", "suspended"]
+          },
+          "user_id": {
+            "type": "integer",
+            "nullable": true
+          },
+          "department_id": {
+            "type": "integer"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at":  {
+            "type": "string",
+            "format": "date-time"
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaskResponse"
+            },
+            "default": []
+          }
+        },
+        "required": ["id", "name", "role", "status", "department_id"],
+        "title": "AgentWithTasks"
+      },
+      "TaskCreate": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength":  1,
+            "maxLength": 200,
+            "title": "Title"
+          },
+          "description": {
+            "type": "string",
+            "maxLength":  1000,
+            "nullable": true,
+            "title": "Description"
+          },
+          "priority": {
+            "type": "string",
+            "enum": ["low", "medium", "high", "urgent"],
+            "default":  "medium",
+            "title":  "Priority"
+          },
+          "agent_id": {
+            "type": "integer",
+            "minimum": 1,
+            "nullable": true,
+            "title":  "Agent Id"
+          }
+        },
+        "required":  ["title"],
+        "title": "TaskCreate"
+      },
+      "TaskResponse": {
+        "type":  "object",
+        "properties":  {
+          "id": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description":  {
+            "type": "string",
+            "nullable": true
+          },
+          "priority": {
+            "type": "string",
+            "enum": ["low", "medium", "high", "urgent"]
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "in_progress", "completed", "cancelled"]
+          },
+          "agent_id": {
+            "type": "integer",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at":  {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["id", "title", "priority", "status"],
+        "title": "TaskResponse"
+      },
+      "TaskUpdate": {
+        "type":  "object",
+        "properties":  {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "nullable": true,
+            "title": "Title"
+          },
+          "description":  {
+            "type": "string",
+            "maxLength": 1000,
+            "nullable":  true,
+            "title": "Description"
+          },
+          "priority": {
+            "type":  "string",
+            "enum":  ["low", "medium", "high", "urgent"],
+            "nullable": true,
+            "title":  "Priority"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "in_progress", "completed", "cancelled"],
+            "nullable": true,
+            "title": "Status"
+          },
+          "agent_id": {
+            "type":  "integer",
+            "minimum": 1,
+            "nullable": true,
+            "title": "Agent Id"
+          }
+        },
+        "title": "TaskUpdate"
+      },
+      "UserCreate": {
+        "type":  "object",
+        "properties":  {
+          "username": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 50,
+            "pattern": "^[a-zA-Z0-9_-]+$",
+            "title":  "Username"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 100,
+            "title": "Email"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "title": "Password"
+          }
+        },
+        "required":  ["username", "email", "password"],
+        "title": "UserCreate"
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "username":  {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "inactive", "suspended"]
+          },
+          "created_at": {
+            "type":  "string",
+            "format":  "date-time"
+          }
+        },
+        "required":  ["id", "username", "email", "status"],
+        "title": "UserResponse"
+      },
+      "ValidationError": {
+        "type":  "object",
+        "properties":  {
+          "loc": {
+            "type": "array",
+            "items": {
+              "type": ["string", "integer"]
+            },
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "required": ["loc", "msg", "type"],
+        "title":  "ValidationError"
+      }
+    }
+  }
+}
